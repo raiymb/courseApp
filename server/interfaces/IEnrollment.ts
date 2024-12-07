@@ -1,11 +1,11 @@
-import { IUser } from "./IUser";
-import { ICourse } from "./ICourse";
+import { User } from "../models/User";
+import { Course } from "../models/Course";
 
 export interface IEnrollment {
   id: number;
-  user: IUser; // Associated user object
-  course: ICourse; // Associated course object
-  progress: number; // Percentage of completion
+  user: User;
+  course: Course;
+  progress: number;
   isCompleted: boolean;
   createdAt: Date;
   updatedAt: Date;

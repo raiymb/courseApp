@@ -2,10 +2,8 @@ import * as dotenv from "dotenv";
 import * as process from "process";
 import * as Joi from "joi";
 
-// Load .env file
 dotenv.config();
 
-// Environment variables schema validation
 const envSchema = Joi.object({
   NODE_ENV: Joi.string().valid("development", "production", "test").default("development"),
   PORT: Joi.number().default(3000),

@@ -1,15 +1,12 @@
-import express from "express";
-import { uploadMaterial, downloadMaterial } from "../controllers/materialController";
+import { Router } from "express";
+import { MaterialController } from "../controllers/materialController";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import multer from "multer";
+import { roleMiddleware } from "../middlewares/roleMiddleware";
 
-const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() }); // Use in-memory storage for file uploads
+const materialRouter = Router();
 
-// Upload a material (requires authentication)
-router.post("/upload", authMiddleware, upload.single("file"), uploadMaterial);
+materialRouter.get("/materials/course/:courseId", authMiddleware, MaterialController.getMaterialsByCourse);
+materialRouter.post("/materials", authMiddleware, roleMiddleware(["instructor", "admin"]), MaterialController.createMaterial);
+materialRouter.get("/materials/download/:fileName", authMiddleware, MaterialController.downloadMaterial);
 
-// Download a material
-router.get("/download/:fileName", downloadMaterial);
-
-export default router;
+export default materialRouter;

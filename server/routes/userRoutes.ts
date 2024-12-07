@@ -1,15 +1,14 @@
-import express from "express";
-import { getUserProfile, updateUserProfile } from "../controllers/userController";
+import { Router } from "express";
+import { UserController } from "../controllers/userController";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { validationMiddleware } from "../middlewares/validationMiddleware";
-import { updateUserSchema } from "../utils/validators/userValidator";
+import { roleMiddleware } from "../middlewares/roleMiddleware";
 
-const router = express.Router();
+const userRouter = Router();
 
-// Get user profile
-router.get("/profile", authMiddleware, getUserProfile);
+userRouter.get("/users", authMiddleware, roleMiddleware(["admin"]), UserController.getAllUsers);
+userRouter.get("/users/:id", authMiddleware, UserController.getUserById);
+userRouter.post("/users", UserController.createUser);
+userRouter.put("/users/:id", authMiddleware, UserController.updateUser);
+userRouter.delete("/users/:id", authMiddleware, roleMiddleware(["admin"]), UserController.deleteUser);
 
-// Update user profile
-router.put("/profile", authMiddleware, validationMiddleware(updateUserSchema), updateUserProfile);
-
-export default router;
+export default userRouter;

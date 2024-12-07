@@ -1,29 +1,35 @@
-import { AppDataSource } from "../config/db";
 import { Course } from "../models/Course";
-import { User } from "../models/User";
 import { ICourse } from "../interfaces/ICourse";
+import {AppDataSource} from "../config/db";
 
-export const createCourse = async (courseData: Partial<ICourse>, instructorId: number): Promise<ICourse> => {
-  const courseRepository = AppDataSource.getRepository(Course);
-  const userRepository = AppDataSource.getRepository(User);
-
-  const instructor = await userRepository.findOneBy({ id: instructorId });
-  if (!instructor || instructor.role !== "instructor") {
-    throw new Error("Instructor not found or invalid");
+export class CourseService {
+  static async getAllCourses(): Promise<ICourse[]> {
+    const courseRepository = AppDataSource.getRepository(Course);
+    return await courseRepository.find({ relations: ["instructor", "lessons"] });
   }
 
-  const newCourse = courseRepository.create({ ...courseData, instructor });
-  return courseRepository.save(newCourse);
-};
+  static async getCourseById(courseId: number): Promise<ICourse | null> {
+    const courseRepository = AppDataSource.getRepository(Course);
+    return await courseRepository.findOne({ where: { id: courseId }, relations: ["instructor", "lessons", "materials", "quizzes"] });
+  }
 
-export const getAllCourses = async (): Promise<ICourse[]> => {
-  const courseRepository = AppDataSource.getRepository(Course);
-  const courses = await courseRepository.find({ relations: ["instructor"] });
-  return courses;
-};
+  static async createCourse(courseData: Partial<ICourse>): Promise<ICourse> {
+    const courseRepository = AppDataSource.getRepository(Course);
+    const course = courseRepository.create(courseData);
+    return await courseRepository.save(course);
+  }
 
-export const getCourseById = async (id: number): Promise<ICourse | null> => {
-  const courseRepository = AppDataSource.getRepository(Course);
-  const course = await courseRepository.findOne({ where: { id }, relations: ["instructor"] });
-  return course;
-};
+  static async updateCourse(courseId: number, updateData: Partial<ICourse>): Promise<ICourse | null> {
+    const courseRepository = AppDataSource.getRepository(Course);
+    const course = await courseRepository.findOne({ where: { id: courseId } });
+    if (!course) return null;
+
+    Object.assign(course, updateData);
+    return await courseRepository.save(course);
+  }
+
+  static async deleteCourse(courseId: number): Promise<void> {
+    const courseRepository = AppDataSource.getRepository(Course);
+    await courseRepository.delete(courseId);
+  }
+}

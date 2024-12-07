@@ -1,18 +1,14 @@
-import express from "express";
-import { getCourses, getCourse, createNewCourse } from "../controllers/courseController";
+import { Router } from "express";
+import { CourseController } from "../controllers/courseController";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { validationMiddleware } from "../middlewares/validationMiddleware";
-import { createCourseSchema } from "../utils/validators/courseValidator";
+import { roleMiddleware } from "../middlewares/roleMiddleware";
 
-const router = express.Router();
+const courseRouter = Router();
 
-// Get all courses (public)
-router.get("/", getCourses);
+courseRouter.get("/courses", authMiddleware, CourseController.getAllCourses);
+courseRouter.get("/courses/:id", authMiddleware, CourseController.getCourseById);
+courseRouter.post("/courses", authMiddleware, roleMiddleware(["instructor", "admin"]), CourseController.createCourse);
+courseRouter.put("/courses/:id", authMiddleware, roleMiddleware(["instructor", "admin"]), CourseController.updateCourse);
+courseRouter.delete("/courses/:id", authMiddleware, roleMiddleware(["instructor", "admin"]), CourseController.deleteCourse);
 
-// Get a specific course by ID (public)
-router.get("/:id", getCourse);
-
-// Create a new course (requires authentication)
-router.post("/", authMiddleware, validationMiddleware(createCourseSchema), createNewCourse);
-
-export default router;
+export default courseRouter;

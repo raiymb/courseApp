@@ -1,13 +1,13 @@
-import { IUser } from "./IUser";
+import { User } from "../models/User";
 
 export interface IPayment {
-  id: string; // Changed to string
+  id: number;
   amount: number;
   currency: string;
-  paymentMethod: "card" | "paypal" | string; // Made more flexible
+  paymentMethod: string;
   transactionId: string;
-  status: "succeeded" | "failed" | "pending";
-  user: IUser; // Reference to the full user object
+  status: string;
+  user: User;
   createdAt: Date;
   updatedAt: Date;
 }

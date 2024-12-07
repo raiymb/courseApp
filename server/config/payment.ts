@@ -1,7 +1,6 @@
 import Stripe from "stripe";
-import { config } from "./env";
 
-export const stripe = new Stripe(config.paymentApiKey || "", {
+export const stripe = new Stripe( "sk_test_51QSBylAxJ5UlJPNP4UxhH5hGao1YQ6oPuJoJjBsxSyurahAu1raNaSZZGDETzz8aAS75oOO2m2GTCxVaMqILHZsv00aC6LSxPy", {
   apiVersion: "2024-11-20.acacia", // Specify Stripe API version
 });
 

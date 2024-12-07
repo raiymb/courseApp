@@ -1,24 +1,42 @@
 import { Request, Response } from "express";
+import { MaterialService } from "../services/materialService";
 import { uploadFile, downloadFile } from "../services/fileService";
 
-export const uploadMaterial = async (req: Request, res: Response) => {
-  try {
-    const filePath = await uploadFile(req.file!);
-    res.status(201).json({ message: "Material uploaded successfully", filePath });
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "An unknown error occurred" });
+export class MaterialController {
+  static async getMaterialsByCourse(req: Request, res: Response): Promise<void> {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const materials = await MaterialService.getMaterialsByCourse(courseId);
+      res.status(200).json(materials);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      res.status(500).json({ message: "Error fetching materials", error: errorMessage });
     }
   }
-};
 
-export const downloadMaterial = async (req: Request, res: Response) => {
-  try {
-    const filePath = await downloadFile(req.params.fileName);
-    res.download(filePath);
-  } catch (error) {
-    res.status(404).json({ message: "File not found" });
+  static async createMaterial(req: Request, res: Response): Promise<void> {
+    try {
+      const materialData = req.body;
+      if (req.file) {
+        const filePath = await uploadFile(req.file);
+        materialData.filePath = filePath;
+      }
+      const material = await MaterialService.createMaterial(materialData);
+      res.status(201).json(material);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      res.status(500).json({ message: "Error creating material", error: errorMessage });
+    }
   }
-};
+
+  static async downloadMaterial(req: Request, res: Response): Promise<void> {
+    try {
+      const fileName = req.params.fileName;
+      const filePath = await downloadFile(fileName);
+      res.download(filePath);
+    } catch (error) {
+      res.status(404).json({ message: "Error downloading file", error: (error as any).message });
+    }
+  }
+}
+

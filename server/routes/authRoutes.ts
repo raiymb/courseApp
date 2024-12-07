@@ -1,20 +1,11 @@
-import express from "express";
-import { register, login } from "../controllers/authController";
-import { validationMiddleware } from "../middlewares/validationMiddleware";
-import { registerSchema, loginSchema } from "../utils/validators/authValidator";
+import { Router } from "express";
+import { AuthController } from "../controllers/authController";
 
-const router = express.Router();
+const authRouter = Router();
 
-// Register a new user
-router.post("/register", validationMiddleware(registerSchema), register);
+authRouter.post("/login", AuthController.login);
+authRouter.post("/register", AuthController.register);
+authRouter.post("/logout", AuthController.logout);
+authRouter.post("/refresh-token", AuthController.refreshToken);
 
-// Login
-router.post("/login", validationMiddleware(loginSchema), login);
-
-// Logout
-router.post("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.status(200).json({ message: "Logout successful" });
-});
-
-export default router;
+export default authRouter;
